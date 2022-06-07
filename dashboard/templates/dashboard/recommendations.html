@@ -1,0 +1,203 @@
+{% extends 'dashboard/main.html' %}
+{% load static %}
+{% block body %}
+
+<!-- ========== App Menu ========== -->
+
+<!-- Left Sidebar End -->
+<!-- Vertical Overlay-->
+<div class="vertical-overlay"></div>
+
+<!-- ============================================================== -->
+<!-- Start right Content here -->
+<!-- ============================================================== -->
+<div class="main-content">
+
+    <div class="page-content">
+        <div class="container-fluid">
+
+            <!-- start page title -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                        <h4 class="mb-sm-0">Products</h4>
+
+                        <div class="page-title-right">
+                            <ol class="breadcrumb m-0">
+                                <li class="breadcrumb-item"><a href="javascript: void(0);">Menu</a></li>
+                                <li class="breadcrumb-item active">Products</li>
+                            </ol>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- end page title -->
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title mb-0">Products</h4>
+                        </div><!-- end card header -->
+
+                        <div class="card-body">
+                            <div id="customerList">
+                                <div class="row g-4 mb-3">
+                                    <div class="col-sm-2">
+                                        <div>
+                                            <label for="">Select Category</label>
+                                            <select name="" id="" class="form-control">
+                                                <option value="">Select Category</option>
+                                                <option value="">Electronics</option>
+                                                <option value=""> Clothing</option>
+                                                <option value="">Mobiles</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-2">
+                                        <div>
+                                            <label for="">Min Price</label>
+                                            <input type="number" class="form-control" placeholder="Min">                                            
+                                        </div>                                        
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div>
+                                            <label for="">Max Price</label>
+                                            <input type="number" class="form-control" placeholder="Max">                                            
+                                        </div>                                        
+                                    </div>
+
+                                    <div class="col-sm-2">
+                                        <div>
+                                            <label for="">Min Reviews</label>
+                                            <input type="number" class="form-control" placeholder="Min">                                            
+                                        </div>                                        
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div>
+                                            <label for="">Max Reviews</label>
+                                            <input type="number" class="form-control" placeholder="Max">                                            
+                                        </div>                                        
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div>
+                                            <label for="">Min Rating</label>
+                                            <input type="number" class="form-control" placeholder="Min">                                            
+                                        </div>                                        
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div>
+                                            <label for="">Max Rating</label>
+                                            <input type="number" class="form-control" placeholder="Max">                                            
+                                        </div>                                        
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div>
+                                            <label for="">Min Revenue</label>
+                                            <input type="number" class="form-control" placeholder="Min">                                            
+                                        </div>                                        
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div>
+                                            <label for="">Max Revenue</label>
+                                            <input type="number" class="form-control" placeholder="Max">                                            
+                                        </div>                                        
+                                    </div
+
+                                    <div class="col-sm">
+                                        <div class="d-flex justify-content-sm-end">
+                                            <div class="search-box ms-2">
+                                                <input type="text" class="form-control search" placeholder="Search...">
+                                                <i class="ri-search-line search-icon"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="table-responsive table-card mt-3 mb-1">
+                                    <table class="table align-middle table-nowrap" id="customerTable">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th scope="col" style="width: 50px;">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" id="checkAll" value="option">
+                                                    </div>
+                                                </th>
+                                                <th class="sort" data-sort="email">Image</th>                                                
+                                                <th class="sort" data-sort="customer_name">ASIN</th>
+                                                <th class="sort" data-sort="email">Name</th>
+                                                <th class="sort" data-sort="phone">Category</th>
+                                                <th class="sort" data-sort="phone">Sales</th>
+                                                <th class="sort" data-sort="date">Ratings</th>                                                
+                                                <th class="sort" data-sort="action">Action</th>
+                                                </tr>
+                                        </thead>
+                                        <tbody class="list form-check-all">
+                                            {% for i in '0123456789'|make_list %}
+                                            <tr>
+                                                <th scope="row">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="checkAll" value="option1">
+                                                    </div>
+                                                </th>
+                                                <td class="customer_name"><img class="image avatar-xl" alt="" src="https://m.media-amazon.com/images/I/614TlIaYBvL._AC_SY300_SX300_.jpg"></td>
+                                                <td class="asin">53784976</td>
+                                                <td class="customer_name">Razer Kraken X Ultralight Gaming Headset</td>
+                                                <td class="email">Headphones</td>
+                                                <td class="email">63K</td>
+                                                <td class="phone">4.4</td>                                 
+                                                <td>
+                                                    <div class="d-flex gap-2">
+                                                        <div class="edit">
+                                                            <button class="btn btn-sm btn-success edit-item-btn"><a href="{% url 'overview' %}" class="text-white">View</a></button>
+                                                        </div>                                                        
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                    <div class="noresult" style="display: none">
+                                        <div class="text-center">
+                                            <lord-icon src="https://cdn.lordicon.com/msoeawqm.json" trigger="loop"
+                                                colors="primary:#121331,secondary:#08a88a" style="width:75px;height:75px">
+                                            </lord-icon>
+                                            <h5 class="mt-2">Sorry! No Result Found</h5>
+                                            <p class="text-muted mb-0">We've searched more than 150+ Orders We did not find any
+                                                orders for you search.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-end">
+                                    <div class="pagination-wrap hstack gap-2">
+                                        <a class="page-item pagination-prev disabled" href="#">
+                                            Previous
+                                        </a>
+                                        <ul class="pagination listjs-pagination mb-0"></ul>
+                                        <a class="page-item pagination-next" href="#">
+                                            Next
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- end card -->
+                    </div>
+                    <!-- end col -->
+                </div>
+                <!-- end col -->
+            </div>
+            <!-- end row -->
+
+            <!-- end row -->
+            <!--end modal -->
+
+        </div>
+        <!-- container-fluid -->
+    </div>
+    <!-- End Page-content -->
+
+   
+{% endblock %}

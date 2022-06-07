@@ -1,0 +1,338 @@
+{% extends 'dashboard/main.html' %}
+{% load static %}
+{% block body %}
+
+<!-- ========== App Menu ========== -->
+
+<!-- Left Sidebar End -->
+<!-- Vertical Overlay-->
+<div class="vertical-overlay"></div>
+
+<!-- ============================================================== -->
+<!-- Start right Content here -->
+<!-- ============================================================== -->
+<div class="main-content">
+
+    <div class="page-content">
+        <div class="container-fluid">
+
+            <!-- start page title -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                        <h4 class="mb-sm-0">Product Overview</h4>
+                        <div class="page-title-right">
+                            <ol class="breadcrumb m-0">
+                                <li class="breadcrumb-item"><a href="javascript: void(0);">Tools</a></li>
+                                <li class="breadcrumb-item active">Product Overview</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- end page title -->
+            {% if status == 'error' %}
+            <div class="row">
+                <div class="col-md-3"></div>
+                <div class="col-md-5">           
+                    <div class="mt-3 pt-3" style="background: white; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+                        <lord-icon src="https://cdn.lordicon.com/tdrtiskw.json" trigger="loop" colors="primary:#f06548,secondary:#f7b84b" style="width:120px;height:120px"></lord-icon>
+                        <div class="mt-3 pt-2 fs-15">
+                            <h4 style="font-size:17px">Oops...! Something went Wrong !</h4>
+                            <p class="text-muted mx-4 mb-0 text-center">Product not found</p>
+                            <div class="mt-3 pb-5" style="background: white; display: flex; justify-content: center; align-items: center;">
+                                <button class="btn btn-primary m-1"  onclick="history.back()">Search Again</button>
+                                <a href="{% url 'support_tickets' %}"><button class="btn btn-warning m-1">Submit Ticket</button></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+
+            <div class="row">
+                <div class="col-md-2 mb-4 d-flex justify-content-center align-items-center" style="background:white; box-shadow: 0 1px 2px rgb(56 65 74 / 15%);">
+                    <img src="{{items.image}}" style="width:90%" class="img-fluid" alt="">
+                </div>
+                <div class="col-md-10">
+                    <h3 class="mb-3">{{ items.title }}</h3>
+                    <div class="row">
+                        <div class="col-xl-3 col-md-6 mt-2">
+                            <!-- card -->
+                            <div class="card card-animate">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-grow-1">
+                                            <h4 class="text-uppercase fw-medium text-muted mb-0" style="font-size: 14px;">Price</h4>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-end justify-content-between">
+                                        <div>
+                                            <h4 class="fw-semibold ff-secondary mb-0" style="font-size:16px; "><span>{{ items.price }}</span></h4>
+                                        </div>
+                                        <div class="avatar-sm flex-shrink-0" style="height: 2rem; width: 2rem;">
+                                            <span class="avatar-title bg-soft-success rounded fs-3">
+                                                <i class="bx bx-dollar-circle text-success"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div><!-- end card body -->
+                            </div><!-- end card -->
+                        </div><!-- end col -->
+
+                        <div class="col-xl-3 col-md-6 mt-2">
+                            <!-- card -->
+                            <div class="card card-animate">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-grow-1">
+                                            <h4 class="text-uppercase fw-medium text-muted mb-0" style="font-size: 14px;">Reviews</h4>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-end justify-content-between">
+                                        <div>
+                                            <h4 class="fw-semibold ff-secondary mb-0" style="font-size:16px;"><span>{{ items.reviews }}</span></h4>
+                                        </div>
+                                        <div class="avatar-sm flex-shrink-0" style="height: 2rem; width: 2rem;">
+                                            <span class="avatar-title bg-soft-success rounded fs-3">
+                                                <i class="bx bx-star text-success"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div><!-- end card body -->
+                            </div><!-- end card -->
+                        </div><!-- end col -->
+
+                        <div class="col-xl-3 col-md-6 mt-2">
+                            <!-- card -->
+                            <div class="card card-animate">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-grow-1">
+                                            <h4 class="text-uppercase fw-medium text-muted mb-0" style="font-size: 14px;">Brand</h4>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-end justify-content-between">
+                                        <div>
+                                            <h4 class="fw-semibold ff-secondary mb-0" style="font-size:16px;"><span>{{ items.brand }}</span></h4>
+                                        </div>
+                                        <div class="avatar-sm flex-shrink-0" style="height: 2rem; width: 2rem;">
+                                            <span class="avatar-title bg-soft-success rounded fs-3">
+                                                <i class="bx bx-box text-success"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div><!-- end card body -->
+                            </div><!-- end card -->
+                        </div><!-- end col -->
+
+
+
+
+                        <div class="col-xl-3 col-md-6 mt-2">
+                            <!-- card -->
+                            <div class="card card-animate">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-grow-1">
+                                            <h4 class="text-uppercase fw-medium text-muted mb-0" style="font-size: 14px;">Weight</h4>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-end justify-content-between">
+                                        <div>
+                                            <h4 class="fw-semibold ff-secondary mb-0" style="font-size:16px;"><span>{{ items.weight }}</span></h4>
+                                        </div>
+                                        <div class="avatar-sm flex-shrink-0" style="height: 2rem; width: 2rem;">
+                                            <span class="avatar-title bg-soft-success rounded fs-3">
+                                                <i class="bx bx-anchor text-success"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div><!-- end card body -->
+                            </div><!-- end card -->
+                        </div><!-- end col -->
+
+
+
+                        <div class="col-xl-3 col-md-6 mt-2">
+                            <!-- card -->
+                            <div class="card card-animate">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-grow-1">
+                                            <h4 class="text-uppercase fw-medium text-muted mb-0" style="font-size: 14px;">Listing Date</h4>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-end justify-content-between">
+                                        <div>
+                                            <h4 class="fw-semibold ff-secondary mb-0" style="font-size:16px;"><span>{{ items.listing_date }}</span></h4>
+                                        </div>
+                                        <div class="avatar-sm flex-shrink-0" style="height: 2rem; width: 2rem;">
+                                            <span class="avatar-title bg-soft-success rounded fs-3">
+                                                <i class="bx bx-calendar-event text-success"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div><!-- end card body -->
+                            </div><!-- end card -->
+                        </div><!-- end col -->
+
+
+                        <div class="col-xl-3 col-md-6 mt-2">
+                            <!-- card -->
+                            <div class="card card-animate">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-grow-1">
+                                            <h4 class="text-uppercase fw-medium text-muted mb-0" style="font-size: 14px;">Rating</h4>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-end justify-content-between">
+                                        <div>
+                                            <h4 class="fw-semibold ff-secondary mb-0" style="font-size:16px;"><span>{{ items.rating }}</span></h4>
+                                        </div>
+                                        <div class="avatar-sm flex-shrink-0" style="height: 2rem; width: 2rem;">
+                                            <span class="avatar-title bg-soft-success rounded fs-3">
+                                                <i class="bx bxs-star-half text-success"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div><!-- end card body -->
+                            </div><!-- end card -->
+                        </div><!-- end col -->
+
+
+                        <div class="col-xl-3 col-md-6 mt-2">
+                            <!-- card -->
+                            <div class="card card-animate">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-grow-1">
+                                            <h4 class="text-uppercase fw-medium text-muted mb-0" style="font-size: 14px;">Dimensions</h4>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-end justify-content-between">
+                                        <div>
+                                            <h4 class="fw-semibold ff-secondary mb-0" style="font-size:16px;"><span>{{ items.dimensions }}</span></h4>
+                                        </div>
+                                        <div class="avatar-sm flex-shrink-0" style="height: 2rem; width: 2rem;">
+                                            <span class="avatar-title bg-soft-success rounded fs-3">
+                                                <i class="bx  bxs-shapes text-success"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div><!-- end card body -->
+                            </div><!-- end card -->
+                        </div><!-- end col -->
+
+
+                        <div class="col-xl-3 col-md-6 mt-2">
+                            <!-- card -->
+                            <div class="card card-animate">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-grow-1">
+                                            <h4 class="text-uppercase fw-medium text-muted mb-0" style="font-size: 14px;">Seasonality</h4>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-end justify-content-between">
+                                        <div>
+                                            <h4 class="fw-semibold ff-secondary mb-0" style="font-size:16px;"><span style="cursor:pointer;"  data-bs-toggle="modal" data-bs-target=".bs-example-modal-center">view graph</span></h4>
+
+
+                                        </div>
+                                        <div class="avatar-sm flex-shrink-0" style="height: 2rem; width: 2rem;">
+                                            <span class="avatar-title bg-soft-success rounded fs-3">
+                                                <i class="bx bx-line-chart text-success"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div><!-- end card body -->
+                            </div><!-- end card -->
+                        </div><!-- end col -->
+
+
+
+                    </div>
+                </div>
+            </div>
+            <!-- end row-->
+
+            <div class="row">
+                <div class="col-md-12">
+                    <h2>Product Features:</h2>
+                    <hr>    
+                </div>
+                {% for key, value in items.attr.items %}
+
+                <div class="col-xl-3 col-md-6">
+                    <!-- card -->
+                    <div class="card card-animate">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1">
+                                    <p class="text-uppercase fw-medium text-muted mb-0">{{key}}</p>
+                                </div>
+                                <!-- <div class="flex-shrink-0">
+                                    <h5 class="text-success fs-14 mb-0">
+                                        <i class="ri-arrow-right-up-line fs-13 align-middle"></i> +16.24 %
+                                    </h5>
+                                </div> -->
+                            </div>
+                            <div class="d-flex align-items-end justify-content-between mt-2">
+                                <div>
+                                    <p class="mb-0" style="font-size:14px">{{value}}</p>
+                                    <!-- <a href="#" class="text-decoration-underline">View net earnings</a> -->
+                                </div>
+
+                            </div>
+                        </div><!-- end card body -->
+                    </div><!-- end card -->
+                </div><!-- end col -->
+                {% endfor %}
+
+            </div> <!-- end row-->
+
+            {% endif %}
+            <!-- end row-->
+        </div>
+        <!-- container-fluid -->
+    </div>
+    <!-- End Page-content -->
+
+    <!-- End Page-content -->
+
+    <div class="modal fade bs-example-modal-center" tabindex="-1" aria-labelledby="mySmallModalLabel" aria-modal="true" role="dialog" style="display: none;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center pt-5 pb-5">
+                    {% if data == None %}
+                    <div>
+                        <lord-icon src="https://cdn.lordicon.com/hrqwmuhr.json" trigger="loop" colors="primary:#121331,secondary:#08a88a" style="width:120px;height:120px"></lord-icon>
+                    <div class="mt-4">
+                        <h4 class="mb-3">Oops something went wrong!</h4>
+                        <p class="text-muted mb-4"> Seasonality graph for this product is not available.</p>
+                        <div class="hstack gap-2 justify-content-center">
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                            
+                        </div>
+
+                    </div>
+                    </div>
+                    {% else %}
+                    <div>
+                        <h3>Seasonality Graph</h3>
+                        <img src="data:image/png;base64,{{ data }}" alt=""width="100%">
+                        <div class="hstack gap-2 justify-content-center">
+                            <button type="button" class="btn btn-danger mt-2" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                    {% endif %}
+                    </div>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+
+    {% endblock %}

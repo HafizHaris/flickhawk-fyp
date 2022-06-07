@@ -1,0 +1,134 @@
+{% extends 'dashboard/main.html' %}
+{% load static %}
+{% block body %}
+
+
+<div class="main-content">
+
+    <div class="page-content">
+        <div class="container-fluid">
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                        <h4 class="mb-sm-0">History</h4>
+
+                        <div class="page-title-right">
+                            <ol class="breadcrumb m-0">
+                                <li class="breadcrumb-item"><a href="javascript: void(0);">Tools</a></li>
+                                <li class="breadcrumb-item active">History</li>
+                            </ol>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="card">
+                        <div class="card-header align-items-center d-flex">
+                            <h4 class="card-title mb-0 flex-grow-1">Recent Activities</h4>
+                        </div><!-- end card header -->
+
+                        <div class="card-body">
+
+                            <div class="live-preview">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover align-middle table-nowrap mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Time</th>
+                                                <th scope="col">Type</th>
+                                                <th scope="col">Activity</th>
+                                                <th scope="col">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for history in history %}
+                                        {% str_to_json history.detail as detail %}
+
+                                            <tr>
+                                                
+                                                <th scope="row">
+                                                    <div class="avatar-sm p-1 py-2 h-auto bg-light rounded-3">
+                                                        <div class="text-center">
+                                                         <h5 class="mb-0">{{history.created.day}}</h5>
+                                                         <div class="text-muted">{{history.created|date:'b' }}</div>
+                                                     </div>
+                                                 </div>
+                                             </th>
+                                             <td>{% if history.history_type == "asin_search" %}
+                                                ASIN Search
+                                             {% endif %}</td>
+                                             <td>
+                                            {% for key, value in detail.items %}
+                                            <span class="d-block"><span style="color:#DF622C">{{key}}</span>: {{value|slice:":100"}}</span>
+                                            {% endfor %}
+                                            </td>
+                                            <td><a href="{{history.url}}" class="link-danger" style="color:#DF622C">View Detail <i class="ri-arrow-right-line align-middle"></i></a></td>
+                                        </a>
+                                         </tr>
+                                         {% endfor %}
+                                     </tbody>
+                                 </table>
+                             </div>
+                         </div>
+                     </div><!-- end card-body -->
+                 </div><!-- end card -->
+             </div>
+             <!-- end col -->
+         </div>
+         <!-- end row -->
+
+         <!-- end row-->
+     </div>
+     <!-- container-fluid -->
+ </div>
+ <!-- End Page-content -->
+
+ <!-- End Page-content -->
+
+ <!-- Include the PayPal JavaScript SDK -->
+ <script src="https://www.paypal.com/sdk/js?client-id=AaVGDin2OeyHYdZTtsa7-_TomtniQRqZ6ayejeKM-EXHYUGkOj0P8SkgFWsxePfRy8DUqhvontgPyJPI&currency=USD"></script>
+
+ <script>
+        // Render the PayPal button into #paypal-button-container
+        paypal.Buttons({
+
+            // Set up the transaction
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: '1'
+                        }
+                    }]
+                });
+            },
+
+            // Finalize the transaction
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(orderData) {
+                    // Successful capture! For demo purposes:
+                    console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+                    var transaction = orderData.purchase_units[0].payments.captures[0];
+                    alert('Transaction '+ transaction.status + ': ' + transaction.id + '\n\nSee console for all available details');
+
+                    // Replace the above to show a success message within this page, e.g.
+                    // const element = document.getElementById('paypal-button-container');
+                    // element.innerHTML = '';
+                    // element.innerHTML = '<h3>Thank you for your payment!</h3>';
+                    // Or go to another URL:  actions.redirect('thank_you.html');
+                });
+            }
+
+
+        }).render('#paypal-button-container');
+    </script>
+
+    {% endblock %}
+
+
+

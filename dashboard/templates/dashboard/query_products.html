@@ -1,0 +1,820 @@
+{% extends 'dashboard/main.html' %}
+{% load static %}
+{% block body %}
+
+<!-- ========== App Menu ========== -->
+
+<!-- Left Sidebar End -->
+<!-- Vertical Overlay-->
+<div class="vertical-overlay"></div>
+
+<!-- ============================================================== -->
+<!-- Start right Content here -->
+<!-- ============================================================== -->
+<div class="main-content">
+
+    <div class="page-content">
+        <div class="container-fluid">
+
+            <!-- start page title -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                        <h4 class="mb-sm-0">Products</h4>
+
+                        <div class="page-title-right">
+                            <ol class="breadcrumb m-0">
+                                <li class="breadcrumb-item"><a href="javascript: void(0);">Menu</a></li>
+                                <li class="breadcrumb-item active">Products</li>
+                            </ol>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- end page title -->
+
+            {% if status == 'error' %}
+            <div class="row">
+                <div class="col-md-3"></div>
+                <div class="col-md-5">           
+                    <div class="mt-3 pt-3" style="background: white; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+                        <lord-icon src="https://cdn.lordicon.com/tdrtiskw.json" trigger="loop" colors="primary:#f06548,secondary:#f7b84b" style="width:120px;height:120px"></lord-icon>
+                        <div class="mt-3 pt-2 fs-15">
+                            <h4 style="font-size:17px">Oops...! Something went Wrong !</h4>
+                            <p class="text-muted mx-4 mb-0 text-center">Please try again.</p>
+                            <div class="mt-3 pb-5" style="background: white; display: flex; justify-content: center; align-items: center;">
+                                <a href="{% url 'query_products' %}"><button class="btn btn-primary m-1" >Search Again</button></a>
+                                <a href="{% url 'support_tickets' %}"><button class="btn btn-warning m-1">Submit Ticket</button></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="row">
+                <div class="col-lg-12">
+                    {% if 'criteria' in request.GET or 'pre-defined' in request.GET %}
+                    <div class="card" id="custom_criteria" style="display:none">
+                        {% else %}
+                        <div class="card" id="custom_criteria">
+                            {% endif %}
+                            <div class="card-header">
+                                <h4 class="card-title mb-0" style="display:inline-block;">Custom Criteria</h4>
+                                <a onclick="show_predefined()" style="float: right; display:inline-block; cursor: pointer; color: #DF622C;">Click here for Predefined Criterias</a>
+                            </div>
+                            {{ params }}
+                            <!-- end card header -->
+                            <div class="card-body">
+                                <form method="get" action="{% url 'query_products' %}" onsubmit="return search_custom()">
+                                    <div id="customerList">
+                                        <div class="row g-4 mb-3">
+                                            <div class="col-sm-2">
+                                                <div>
+                                                    <label for="">Search Keyword</label>
+                                                    <input type="text" name="keyword" id="keyword" value="{{ keyword }}"  class="form-control" placeholder="Enter Keyword">                                            
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-2">
+                                                <div>
+                                                    <label for="">Country</label>                                            
+                                                    <select class="form-control" name="country" id="country">
+                                                        <option value="">Select Country</option>
+                                                        {% for country in countries  %}
+                                                            <option {% if request_country == country.name %} selected="selected" {% endif %} value="{{country.name}}">{{country.name}}</option>         
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>                                        
+                                            </div>
+
+                                            <div class="col-sm-2">
+                                                <div>
+                                                    <label for="">Avg Price (MIN)</label>
+                                                    <input type="number" min="0" oninput="validity.valid||(value='');" maxlength="10" value="{{ min_avg_price }}" name="min_avg_price" id="min_avg_price" class="form-control" placeholder="Avg Price">                                            
+                                                </div>                                        
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div>
+                                                    <label for="">Avg Price (MAX)</label>
+                                                    <input type="number" min="0" oninput="validity.valid||(value='');"  maxlength="10" id="max_avg_price" name="max_avg_price" value="{{ max_avg_price }}" class="form-control" placeholder="Avg Price">                                            
+                                                </div>                                        
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div>
+                                                    <label for="">Avg Reviews (MIN)</label>
+                                                    <input name="min_avg_reviews" min="0" oninput="validity.valid||(value='');"  id="min_avg_reviews" type="number" maxlength="10" value="{{ min_avg_reviews }}"  class="form-control" placeholder="Avg Reviews">                                            
+                                                </div>                                        
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div>
+                                                    <label for="">Avg Reviews (MAX)</label>
+                                                    <input name="max_avg_reviews" min="0" oninput="validity.valid||(value='');"  id="max_avg_reviews" value="{{ max_avg_reviews }}" type="number" maxlength="10" class="form-control" placeholder="Avg Reviews">                                            
+                                                </div>                                        
+                                            </div>
+
+                                            <div class="col-sm-2">
+                                                <div>
+                                                    <label for="">Avg Revenue (MIN)</label>
+                                                    <input type="number" min="0" oninput="validity.valid||(value='');"  maxlength="10"  value="{{ min_avg_revenue }}" name="min_avg_revenue" id="min_avg_revenue" class="form-control" placeholder="In USD">                                            
+                                                </div>                                        
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div>
+                                                    <label for="">Avg Revenue (MAX)</label>
+                                                    <input type="number" id="max_avg_revenue" min="0" oninput="validity.valid||(value='');"   maxlength="10"  value="{{ max_avg_revenue }}" name="max_avg_revenue" class="form-control" placeholder="In USD">                                            
+                                                </div>                                        
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div>
+                                                    <label for="">Avg Rating (MIN)</label>
+                                                    <input type="number" min="0" max="5"  oninput="validity.valid||(value='');"  class="form-control" placeholder="eg. 2.5" step="0.1" value="{{ min_avg_ratings }}" name="min_avg_rating" id="min_avg_rating">                                            
+                                                </div>                                        
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div>
+                                                    <label for="">Avg Rating (MAX)</label>
+                                                    <input type="number" min="0" max="5"  oninput="validity.valid||(value='');"  class="form-control" placeholder="eg. 4.5" step="0.1" value="{{ max_avg_ratings }}" name="max_avg_rating" id="max_avg_rating">                                            
+                                                </div>                                        
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div>
+                                                    <label for="">Brand Dominations</label>                                            
+                                                    <select class="form-control" placeholder="AMZ as Seller" name="brand_domination" id="brand_domination">
+                                                        <option value="">Select</option>
+                                                        <option {% if  request_brand_domination == "No" %} selected="selected" {% endif %} value="No">No</option>
+                                                        <option {% if  request_brand_domination == "Yes" %} selected="selected" {% endif %} value="Yes">Yes</option>
+                                                    </select>
+                                                </div>                                        
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div>
+                                                    <label for="">AMZ as Seller</label>
+                                                    <select class="form-control" placeholder="AMZ as Seller" name="amz_as_seller" id="amz_as_seller">
+                                                        <option value="">select</option>
+                                                        <option {% if  request_amz_as_seller == "No" %} selected="selected" {% endif %} value="No">No</option>
+                                                        <option {% if  request_amz_as_seller == "Yes" %} selected="selected" {% endif %} value="Yes">Yes</option>
+                                                    </select>
+                                                </div>                                        
+                                            </div>
+
+                                            <div class="col-sm-2">                                        
+                                                <div>
+                                                    <label for="">Weight less than</label>
+                                                    <input type="number" min="0" oninput="validity.valid||(value='');"  value="{{ request_avg_weight }}" class="form-control" name="avg_weight" id="avg_weight" placeholder="In pounds">                                                
+                                                </div>                                        
+                                            </div>
+                                            <div class="col-sm-2">                                        
+                                                <div>
+                                                    <label for="">Competitors less than</label>
+                                                    <input type="number" min="0" oninput="validity.valid||(value='');"  class="form-control" placeholder="No of Products" value="{{ request_no_of_products }}" name="no_of_products" id="no_of_products">                                                
+                                                </div>   
+
+                                            </div>                                
+                                            <div class="col-md-12 mt-2">
+                                                <span style="color:red; display:none" id="custom_criteria_error"></span>
+                                            </div>
+                                            <div class="mt-2">     
+                                                <input type="submit" class="btn btn-danger" style="background:#DF622C;" value="Search">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        {% if 'criteria' in request.GET or 'pre-defined' in request.GET %}
+                        <div class="card" id="predefined_criteria">
+                            {% else %}
+                            <div class="card" id="predefined_criteria" style="display:none">
+                                {% endif %}
+                                <div class="card-header">
+                                    <h4 class="card-title mb-0 d-inline-block">Pre-defined Criteria</h4>
+                                    <a onclick="show_custom()" style="float: right; display:inline-block; cursor: pointer; color: #DF622C;">Click here for Custom Criterias</a>
+                                </div>
+                                <div class="card-body">
+                                    <form action="{% url 'query_products' %}" onsubmit="return search_predefine()">
+                                        <div class="form-group">
+                                            <div class="row g-4 mb-3">
+                                                <div class="col-sm-4">
+                                                    <label for="">Keyword</label>
+                                                    <input type="text" class="form-control" placeholder="Enter Keyword" value="{{ keyword }}" id="predefined_keyword_field" name="keyword">
+                                                    <span style="color:red; display: none;" id="predefined_keyword_error">Please enter valid keyword</span>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <div>
+                                                        <label for="">Select Criteria</label>
+                                                        <select name="criteria" id="predefined_criteria_field" class="form-control">
+                                                            <option value="">Select Criteria</option>
+                                                            {% for criteria in predefined_criterias  %}
+                                                            <option {% if criteria.criteria_name == request.GET.criteria %} selected="selected" {% endif %} value="{{criteria.criteria_name}}">{{criteria.criteria_name}}</option>                                        
+                                                            {% endfor %}
+                                                        </select>                       
+                                                        <span style="color:red; display: none;" id="predefined_criteria_error">Please select criteria</span>
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <button class="btn btn-danger" style="background:#DF622C;">Search</button>
+                                                </div>
+
+
+
+                                            </div>
+
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                    {% if 'keyword' in request.GET %}
+                    <div class="row result-section">
+                        {% else %}
+                        <div class="row result-section" style="display:none">
+                            {% endif %}
+                            <div class="col-xl-12">
+                                <div class="card crm-widget">
+                                    <div class="card-body p-0">
+                                        <div class="row row-cols-xxl-5 row-cols-md-3 row-cols-1 g-0">
+                                            <div class="col">
+                                                <div class="py-4 px-3">
+                                                    <h5 class="text-muted text-uppercase fs-13">Avg Revenue
+                                                        {% if min_avg_revenue or max_avg_revenue %}                                                
+                                                        {% if avg_revenue > min_avg_revenue and avg_revenue < max_avg_revenue %}                                                
+                                                        <i class="ri-checkbox-circle-line text-success fs-22 float-end align-middle"></i>
+                                                        {% else %}
+                                                        <i class="ri-close-circle-line text-danger fs-22 float-end align-middle"></i>
+                                                        {% endif %}
+                                                        {% endif %}
+                                                    </h5>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="flex-shrink-0">
+                                                            <i class="ri-money-dollar-circle-line display-6 text-muted"></i>
+                                                        </div>
+                                                        <div class="flex-grow-1 ms-3">
+                                                            <h2 class="mb-0"><span>
+                                                                ${{ avg_revenue|floatformat:2 }}
+
+                                                            </span>
+                                                        <span style="font-size:10px; display: block;">Min: ${{min_avg_revenue}} - Max: ${{max_avg_revenue}}</span>
+                                                        </h2>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div><!-- end col -->
+                                            <div class="col">
+                                                <div class="mt-3 mt-md-0 py-4 px-3">
+                                                    <h5 class="text-muted text-uppercase fs-13">Avg Reviews 
+                                                        {% if min_avg_reviews or max_avg_reviews %}                                                
+                                                        {% if avg_reviews > min_avg_reviews and avg_reviews < max_avg_reviews %}                                                
+                                                        <i class="ri-checkbox-circle-line text-success fs-22 float-end align-middle"></i>
+                                                        {% else %}
+                                                        <i class="ri-close-circle-line text-danger fs-22 float-end align-middle"></i>
+                                                        {% endif %}
+                                                        {% endif %}
+                                                    </h5>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="flex-shrink-0">
+                                                            <i class=" ri-star-line display-6 text-muted"></i>
+                                                        </div>
+                                                        <div class="flex-grow-1 ms-3">
+                                                            <h2 class="mb-0"><span>{{ avg_reviews|floatformat:2 }}</span>
+                                                                <span style="font-size:10px; display: block;">Min: {{min_avg_reviews}} - Max: {{max_avg_reviews}}</span></h2>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div><!-- end col -->
+                                            <div class="col">
+                                                <div class="mt-3 mt-md-0 py-4 px-3">
+                                                    <h5 class="text-muted text-uppercase fs-13">Avg Weight 
+                                                        {% if request_avg_weight %}                                                
+                                                        {% if avg_weight < request_avg_weight %}                                                
+                                                        <i class="ri-checkbox-circle-line text-success fs-22 float-end align-middle"></i>
+                                                        {% else %}
+                                                        <i class="ri-close-circle-line text-danger fs-22 float-end align-middle"></i>
+                                                        {% endif %}
+                                                        {% endif %}
+                                                    </h5>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="flex-shrink-0">
+                                                            <i class=" ri-anchor-fill display-6 text-muted"></i>
+                                                        </div>
+                                                        <div class="flex-grow-1 ms-3">
+                                                            <h2 class="mb-0"><span>{{ avg_weight }} <span style="font-size:11px">Pounds</span></span>
+                                                                <span style="font-size:10px; display: block;">Max: {{request_avg_weight}}</span></h2>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div><!-- end col -->
+                                            <div class="col">
+                                                <div class="mt-3 mt-lg-0 py-4 px-3">
+                                                    <h5 class="text-muted text-uppercase fs-13">Avg Rating 
+                                                        {% if min_avg_ratings or max_avg_ratings %}                                                
+                                                        {% if avg_ratings > min_avg_ratings and avg_ratings < max_avg_ratings %}                                                
+                                                        <i class="ri-checkbox-circle-line text-success fs-22 float-end align-middle"></i>
+                                                        {% else %}
+                                                        <i class="ri-close-circle-line text-danger fs-22 float-end align-middle"></i>
+                                                        {% endif %}
+                                                        {% endif %}
+                                                    </h5>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="flex-shrink-0">
+                                                            <i class=" ri-star-line display-6 text-muted"></i>
+                                                        </div>
+                                                        <div class="flex-grow-1 ms-3">
+                                                            <h2 class="mb-0"><span>{{ avg_ratings }}</span>
+                                                                <span style="font-size:10px; display: block;">Min: {{min_avg_ratings}} - Max: {{max_avg_ratings}}</span></h2>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div><!-- end col -->
+                                            <div class="col">
+                                                <div class="mt-3 mt-lg-0 py-4 px-3">
+                                                    <h5 class="text-muted text-uppercase fs-13">Avg Price 
+                                                        {% if min_avg_price or max_avg_price %}                                                
+                                                        {% if avg_price > min_avg_price and avg_price < max_avg_price %}                                                
+                                                        <i class="ri-checkbox-circle-line text-success fs-22 float-end align-middle"></i>
+                                                        {% else %}
+                                                        <i class="ri-close-circle-line text-danger fs-22 float-end align-middle"></i>
+                                                        {% endif %}
+                                                        {% endif %}
+                                                    </h5>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="flex-shrink-0">
+                                                            <i class="ri-price-tag-2-line display-6 text-muted"></i>
+                                                        </div>
+                                                        <div class="flex-grow-1 ms-3">
+                                                            <h2 class="mb-0"><span>${{ avg_price }}</span>
+                                                                <span style="font-size:10px; display: block;">Min: ${{min_avg_price}} - Max: ${{max_avg_price}}</span></h2>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div><!-- end col -->
+                                        </div><!-- end row -->
+                                    </div><!-- end card body -->
+                                </div><!-- end card -->
+                            </div><!-- end col -->
+                        </div>
+
+
+                        {% if 'keyword' in request.GET %}
+                    <div class="row result-section">
+                        {% else %}
+                        <div class="row result-section" style="display:none">
+                        {% endif %}
+                            <div class="col-xl-12">
+                                <div class="card crm-widget">
+                                    <div class="card-body p-0">
+                                        <div class="row row-cols-xxl-5 row-cols-md-3 row-cols-1 g-0">
+                                            <div class="col">
+                                                <div class="py-4 px-3">
+                                                    <h5 class="text-muted text-uppercase fs-13">Brand Domination 
+                                                        {% if request_brand_domination == 'No' and brand_domination == False or request_brand_domination == 'Yes' and brand_domination == True %}
+                                                        <i class="ri-checkbox-circle-line text-success fs-22 float-end align-middle"></i>
+                                                        {% else %}
+                                                        <i class="ri-close-circle-line text-danger fs-22 float-end align-middle"></i>
+                                                        {% endif %}
+                                                    </h5>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="flex-shrink-0">
+                                                            <i class=" ri-barcode-box-line display-6 text-muted"></i>
+                                                        </div>
+                                                        <div class="flex-grow-1 ms-3">
+                                                            <h2 class="mb-0"><span>
+                                                        {% if brand_domination == True %}
+                                                        Yes
+                                                        {% else %}
+                                                        No
+                                                        {% endif %}
+                                                        </span>
+                                                        {% if request_brand_domination == 'No' and brand_domination == False or request_brand_domination == 'Yes' and brand_domination == True %}
+                                                        <span style="font-size:10px; display: block;">Criteria matched</span>
+                                                        {% else %}
+                                                        <span style="font-size:10px; display: block;">Criteria not matched</span>
+                                                        {% endif %}
+                                                    </h2>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div><!-- end col -->
+                                            <div class="col">
+                                                <div class="mt-3 mt-md-0 py-4 px-3">
+                                                    <h5 class="text-muted text-uppercase fs-13">AMZ as seller 
+                                                        {% if request_amz_as_seller == 'No' and amz_as_seller == False or request_amz_as_seller == 'Yes' and amz_as_seller == True %}
+                                                        <i class="ri-checkbox-circle-line text-success fs-22 float-end align-middle"></i>
+                                                        {% else %}
+                                                        <i class="ri-close-circle-line text-danger fs-22 float-end align-middle"></i>
+                                                        {% endif %}
+                                                    </h5>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="flex-shrink-0">
+                                                            <i class=" ri-amazon-line display-6 text-muted"></i>
+                                                        </div>
+                                                        <div class="flex-grow-1 ms-3">
+                                                        <h2 class="mb-0">{% if amz_as_seller == True %}
+                                                        Yes
+                                                        {% else %}
+                                                        No
+                                                        {% endif %}
+                                                        </span>
+                                                        {% if request_amz_as_seller == 'No' and amz_as_seller == False or request_amz_as_seller == 'Yes' and amz_as_seller == True %}
+                                                        <span style="font-size:10px; display: block;">Criteria matched</span>
+                                                        {% else %}
+                                                        <span style="font-size:10px; display: block;">Criteria not matched</span>
+                                                        {% endif %}</h2>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div><!-- end col -->
+                                            <div class="col">
+                                                <div class="mt-3 mt-md-0 py-4 px-3">
+                                                    <h5 class="text-muted text-uppercase fs-13">Competitiors 
+                                                         {% if request_no_of_products %}                                                
+                                                        {% if no_of_products < request_no_of_products %}                                                
+                                                        <i class="ri-checkbox-circle-line text-success fs-22 float-end align-middle"></i>
+                                                        {% else %}
+                                                        <i class="ri-close-circle-line text-danger fs-22 float-end align-middle"></i>
+                                                        {% endif %}
+                                                        {% endif %}
+                                                    </h5>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="flex-shrink-0">
+                                                            <i class="ri-product-hunt-line display-6 text-muted"></i>
+                                                        </div>
+                                                        <div class="flex-grow-1 ms-3">
+                                                            <h2 class="mb-0">
+                                                            {{ no_of_products }}
+                                                            <span style="font-size:10px; display: block;">Max: {{request_no_of_products}}</span>
+                                                            </h2>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div><!-- end col -->
+                                            <div class="col">
+                                                <div class="mt-3 mt-lg-0 py-4 px-3">
+                                                    <h5 class="text-muted text-uppercase fs-13">Avg Listing Days </h5>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="flex-shrink-0">
+                                                            <i class="ri-calendar-2-line display-6 text-muted"></i>
+                                                        </div>
+                                                        <div class="flex-grow-1 ms-3">
+                                                            <h2 class="mb-0"><span>{{avg_listing_days|floatformat:"0"}}</span><span style="font-size:11px">days</span></h2>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div><!-- end col -->
+                                            <div class="col">
+                                                <div class="mt-3 mt-lg-0 py-4 px-3">
+                                                    <h5 class="text-muted text-uppercase fs-13">Country</h5>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="flex-shrink-0">
+                                                            <i class="ri-flag-line display-6 text-muted"></i>
+                                                        </div>
+                                                        <div class="flex-grow-1 ms-3">
+                                                            <h3 class="mb-0">{{ request_country }}</h3>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div><!-- end col -->
+                                        </div><!-- end row -->
+                                    </div><!-- end card body -->
+                                </div><!-- end card -->
+                            </div><!-- end col -->
+                        </div>
+
+                    {% if 'keyword' in request.GET %}
+                    <div class="card result-section">
+                        {% else %}
+                        <div class="card result-section" style="display:none">
+                            {% endif %}
+                            <div class="card-body">
+                                <div class="table-responsive table-card mt-3 mb-1">
+                                    <table class="table align-middle table-nowrap" id="customerTable">
+                                        <thead class="table-light">
+                                            <tr>
+
+                                                <th class="sort" data-sort="email">Product</th>                                                                                                
+                                                <th class="sort" data-sort="email">Overview</th>
+
+                                                <th class="sort" data-sort="action">Detail</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="list form-check-all">  
+
+                                            {% for item in myl %}  
+                                            <tr>
+
+                                                <td class="customer_name"><img class="image avatar-xl" alt="" src="{{ item.0.image }}"></td>
+                                                <td>
+                                                   <b>Title: </b> {{ item.0.title|slice:":100" }}
+                                                   <br>
+                                                   <b>Brand: </b> {{ item.0.brand }}
+                                                   <br>
+                                                   <b>No of Reviews: </b> {{ item.0.reviews }}
+                                                   <br>
+                                                   <b>Price: </b> {{ item.0.price }}
+                                                   <br>
+                                                   <b>Ratings: </b> {{ item.0.stars }}
+                                                   <br>
+
+                                               </td>
+                                               <td><a href="/overview/{{ item.0.attr.ASIN }}" class="link-danger" style="color:#DF622C">View Detail <i class="ri-arrow-right-line align-middle"></i></a></td>
+                                           </tr>                                                   
+
+                                           {% endfor %}                                            
+
+
+                                       </tbody>
+                                   </table>
+
+                               </div>
+                           </div>
+                       </div><!-- end card -->
+
+                        <div class="row" id="data-preloader" style="display:none">
+                            <div class="col-xl-12">
+                                <div class="card crm-widget">
+                                    <div class="card-body p-0">
+                                    <div style="height: 400px; display: flex; justify-content:center; align-items: center;">
+                                       <img src="/static/dashboard-assets/images/preloader/48x48.gif" style="margin:0 auto">
+                                   </div>
+                                    </div><!-- end card body -->
+                                </div><!-- end card -->
+                            </div><!-- end col -->
+                        </div>
+
+                        <!-- yahan code -->
+                   </div>
+                   <!-- end col -->
+               </div>
+               <!-- end col -->
+           </div>
+           <!-- end row -->
+           {% endif %}
+
+           <!-- end row -->
+           <!--end modal -->
+
+       </div>
+       <!-- container-fluid -->
+   </div>
+   <!-- End Page-content -->
+
+   <script type="text/javascript">
+    function show_predefined(){
+        document.getElementById("custom_criteria").style.display = "none";
+        document.getElementById("predefined_criteria").style.display = "block";
+    }
+
+    function show_custom(){
+        document.getElementById("predefined_criteria").style.display = "none";
+        document.getElementById("custom_criteria").style.display = "block";
+    }
+
+    function  search_predefine() {
+
+        let status = true;
+        predefined_keyword = document.getElementById("predefined_keyword_field").value;
+        predefined_criteria = document.getElementById("predefined_criteria_field").value;
+
+        if(predefined_keyword==""){
+            document.getElementById("predefined_keyword_error").style.display = "block";
+            setTimeout(function(){
+                document.getElementById("predefined_keyword_error").style.display = "none";
+            }, 3000)
+            status=false;
+        }
+
+        if(predefined_criteria==""){
+
+            document.getElementById("predefined_criteria_error").style.display = "block";
+            setTimeout(function(){
+                document.getElementById("predefined_criteria_error").style.display = "none";
+            }, 3000)
+            status=false;
+        }
+        if(status){ 
+            document.querySelectorAll('.result-section').forEach(p => p.style.display = "none");
+            document.getElementById("data-preloader").style.display = "block";
+        }
+        return status;
+    }
+
+
+    function  show_custom_error() {
+        document.getElementById("custom_criteria_error").style.display = "block";
+        setTimeout(function(){
+                document.getElementById("custom_criteria_error").style.display = "none";
+        }, 3000)
+    }
+    function  search_custom() {
+
+        let status = true;
+        keyword = document.getElementById("keyword").value;
+        country = document.getElementById("country").value;
+        min_avg_price = document.getElementById("min_avg_price").value;
+        max_avg_price = document.getElementById("max_avg_price").value;
+        min_avg_reviews = document.getElementById("min_avg_reviews").value;
+        max_avg_reviews = document.getElementById("max_avg_reviews").value;
+        min_avg_revenue = document.getElementById("min_avg_revenue").value;
+        max_avg_revenue = document.getElementById("max_avg_revenue").value;
+        max_avg_rating = document.getElementById("max_avg_rating").value;
+        min_avg_rating = document.getElementById("min_avg_rating").value;
+        amz_as_seller = document.getElementById("amz_as_seller").value;
+        brand_domination = document.getElementById("brand_domination").value;
+        avg_weight = document.getElementById("avg_weight").value;
+        no_of_products = document.getElementById("no_of_products").value;
+
+
+        
+        if(no_of_products==""){
+            document.getElementById('custom_criteria_error').textContent = 'Please fill all the fields';
+            document.getElementById("no_of_products").style.border = "1px solid red";
+            setTimeout(function(){
+                document.getElementById("no_of_products").style.border = "1px solid var(--vz-input-border)";
+            }, 3000)
+            status=false;
+        }
+        if(avg_weight==""){
+            document.getElementById('custom_criteria_error').textContent = 'Please fill all the fields';
+            document.getElementById("avg_weight").style.border = "1px solid red";
+            setTimeout(function(){
+                document.getElementById("avg_weight").style.border = "1px solid var(--vz-input-border)";
+            }, 3000)
+            status=false;
+        }
+        if(brand_domination==""){
+            document.getElementById('custom_criteria_error').textContent = 'Please fill all the fields';
+            document.getElementById("brand_domination").style.border = "1px solid red";
+            setTimeout(function(){
+                document.getElementById("brand_domination").style.border = "1px solid var(--vz-input-border)";
+            }, 3000)
+            status=false;
+        }
+        if(amz_as_seller==""){
+            document.getElementById('custom_criteria_error').textContent = 'Please fill all the fields';
+            document.getElementById("amz_as_seller").style.border = "1px solid red";
+            setTimeout(function(){
+                document.getElementById("amz_as_seller").style.border = "1px solid var(--vz-input-border)";
+            }, 3000)
+            status=false;
+        }
+        if(min_avg_rating==""){
+            document.getElementById('custom_criteria_error').textContent = 'Please fill all the fields';
+            document.getElementById("min_avg_rating").style.border = "1px solid red";
+            setTimeout(function(){
+                document.getElementById("min_avg_rating").style.border = "1px solid var(--vz-input-border)";
+            }, 3000)
+            status=false;
+        }
+        if(max_avg_rating==""){
+            document.getElementById('custom_criteria_error').textContent = 'Please fill all the fields';
+            document.getElementById("max_avg_rating").style.border = "1px solid red";
+            setTimeout(function(){
+                document.getElementById("max_avg_rating").style.border = "1px solid var(--vz-input-border)";
+            }, 3000)
+            status=false;
+        }
+
+        if(max_avg_price==""){
+            document.getElementById("max_avg_price").style.border = "1px solid red";
+            setTimeout(function(){
+                document.getElementById("max_avg_price").style.border = "1px solid var(--vz-input-border)";
+            }, 3000)
+            status=false;
+        }
+
+        if(min_avg_reviews==""){
+            document.getElementById('custom_criteria_error').textContent = 'Please fill all the fields';
+            document.getElementById("min_avg_reviews").style.border = "1px solid red";
+            setTimeout(function(){
+                document.getElementById("min_avg_reviews").style.border = "1px solid var(--vz-input-border)";
+            }, 3000)
+            status=false;
+        }
+
+        if(max_avg_reviews==""){
+            document.getElementById('custom_criteria_error').textContent = 'Please fill all the fields';
+            document.getElementById("max_avg_reviews").style.border = "1px solid red";
+            setTimeout(function(){
+                document.getElementById("max_avg_reviews").style.border = "1px solid var(--vz-input-border)";
+            }, 3000)
+            status=false;
+        }
+
+        if(min_avg_revenue==""){
+            document.getElementById("min_avg_revenue").style.border = "1px solid red";
+            setTimeout(function(){
+                document.getElementById("min_avg_revenue").style.border = "1px solid var(--vz-input-border)";
+            }, 3000)
+            status=false;
+        }
+
+        if(max_avg_revenue==""){
+            document.getElementById('custom_criteria_error').textContent = 'Please fill all the fields';
+            document.getElementById("max_avg_revenue").style.border = "1px solid red";
+            setTimeout(function(){
+                document.getElementById("max_avg_revenue").style.border = "1px solid var(--vz-input-border)";
+            }, 3000)
+            status=false;
+        }
+
+        if(keyword==""){
+            document.getElementById('custom_criteria_error').textContent = 'Please fill all the fields';
+            document.getElementById("keyword").style.border = "1px solid red";
+            setTimeout(function(){
+                document.getElementById("keyword").style.border = "1px solid var(--vz-input-border)";
+            }, 3000)
+            status=false;
+        }
+
+        if(country==""){
+            document.getElementById('custom_criteria_error').textContent = 'Please fill all the fields';
+            document.getElementById("country").style.border = "1px solid red";
+            setTimeout(function(){
+                document.getElementById("country").style.border = "1px solid var(--vz-input-border)";
+            }, 3000)
+            status=false;
+        }
+
+        if(min_avg_price==""){
+            document.getElementById('custom_criteria_error').textContent = 'Please fill all the fields';
+            document.getElementById("min_avg_price").style.border = "1px solid red";
+            setTimeout(function(){
+                document.getElementById("min_avg_price").style.border = "1px solid var(--vz-input-border)";
+            }, 3000)
+            status=false;
+        }
+
+
+        
+
+        if(status){
+            if(parseInt(min_avg_price)>=parseInt(max_avg_price)){
+
+            document.getElementById('custom_criteria_error').textContent = 'Minimum price should be less than maximum';
+            document.getElementById("min_avg_price").style.border = "1px solid red";
+            document.getElementById("max_avg_price").style.border = "1px solid red";
+            setTimeout(function(){
+                document.getElementById("min_avg_price").style.border = "1px solid var(--vz-input-border)";
+                document.getElementById("max_avg_price").style.border = "1px solid var(--vz-input-border)";
+            }, 3000)
+            show_custom_error();
+            return false;
+            }
+
+
+            if(min_avg_reviews>=max_avg_reviews){
+           
+            document.getElementById('custom_criteria_error').textContent = 'Minimum reviews should be less than maximum';
+            document.getElementById("min_avg_reviews").style.border = "1px solid red";
+            document.getElementById("max_avg_reviews").style.border = "1px solid red";
+            setTimeout(function(){
+                document.getElementById("min_avg_reviews").style.border = "1px solid var(--vz-input-border)";
+                document.getElementById("max_avg_reviews").style.border = "1px solid var(--vz-input-border)";
+            }, 3000)
+            show_custom_error();
+            return false;
+            }
+
+
+            if(min_avg_revenue>=max_avg_revenue){
+           
+            document.getElementById('custom_criteria_error').textContent = 'Minimum revenue should be less than maximum';
+            document.getElementById("min_avg_revenue").style.border = "1px solid red";
+            document.getElementById("max_avg_revenue").style.border = "1px solid red";
+            setTimeout(function(){
+                document.getElementById("min_avg_revenue").style.border = "1px solid var(--vz-input-border)";
+                document.getElementById("max_avg_revenue").style.border = "1px solid var(--vz-input-border)";
+            }, 3000)
+            show_custom_error();
+            return false;
+            }
+
+
+            if(min_avg_rating>=max_avg_rating){
+           
+            document.getElementById('custom_criteria_error').textContent = 'Minimum revenue should be less than maximum';
+            document.getElementById("min_avg_rating").style.border = "1px solid red";
+            document.getElementById("max_avg_rating").style.border = "1px solid red";
+            setTimeout(function(){
+                document.getElementById("min_avg_rating").style.border = "1px solid var(--vz-input-border)";
+                document.getElementById("max_avg_rating").style.border = "1px solid var(--vz-input-border)";
+            }, 3000)
+            show_custom_error();
+            return false;
+            }
+
+
+        }
+
+       if(status){
+        return true;
+       }else{
+        return false;
+       }
+        
+    }
+
+</script>
+{% endblock %}

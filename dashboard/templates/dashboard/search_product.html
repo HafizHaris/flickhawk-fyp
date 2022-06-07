@@ -1,0 +1,141 @@
+{% extends 'dashboard/main.html' %}
+{% load static %}
+{% block body %}
+
+<!-- ========== App Menu ========== -->
+
+<!-- Left Sidebar End -->
+<!-- Vertical Overlay-->
+<div class="vertical-overlay"></div>
+
+<!-- ============================================================== -->
+<!-- Start right Content here -->
+<!-- ============================================================== -->
+
+<div class="main-content">
+
+    <div class="page-content">
+        <div class="container-fluid">
+
+            <!-- start page title -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                        <h4 class="mb-sm-0">Search Product</h4>
+
+                        <div class="page-title-right">
+                            <ol class="breadcrumb m-0">
+                                <li class="breadcrumb-item"><a href="javascript: void(0);">Tools</a></li>
+                                <li class="breadcrumb-item active">Search Product</li>
+                            </ol>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- end page title -->
+
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-header align-items-center d-flex">
+                            <h4 class="card-title mb-0 flex-grow-1">Search Product</h4>
+                        </div><!-- end card header -->
+                        <div class="card-body">
+                            <div class="live-preview">
+                                <div class="row gy-4">                 
+                                    <div class="col-xxl-3 col-md-6">
+                                        <div>
+                                            <label for="basiInput" class="form-label">Enter ASIN</label>
+                                            <input type="text" class="form-control mb-1" id="asin" placeholder="e.g B09JFS5CJK">
+                                            <span style="color:red; display: none;" id="asin_error">Please enter valid ASIN</span>
+                                            <button class="btn btn-danger mt-1 mb-3 bg-gradient" style="background: #DF622C;" onclick="asin_click()">search</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header align-items-center d-flex">
+                            <h4 class="card-title mb-0 flex-grow-1">Recent Searches</h4>
+                            <div class="flex-shrink-0">
+                                <!-- <div class="dropdown card-header-dropdown">
+                                    <a class="text-reset dropdown-btn" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span class="text-muted fs-18"><i class="mdi mdi-dots-vertical"></i></span>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-end">
+                                        <a class="dropdown-item" href="#">Edit</a>
+                                        <a class="dropdown-item" href="#">Remove</a>
+                                    </div>
+                                </div> -->
+                            </div>
+                        </div><!-- end card header -->
+                        <div class="card-body pt-0">
+                            <ul class="list-group list-group-flush border-dashed">
+                                {% for history in asin_history %}
+                                {% str_to_json history.detail as detail %}
+                                <li class="list-group-item ps-0" onclick="window.location.href='{{history.url}}'" style="cursor:pointer;">
+                                    <div class="row align-items-center g-3">
+                                        <div class="col-auto">
+                                            <div class="avatar-sm p-1 py-2 h-auto bg-light rounded-3">
+                                                <div class="text-center">
+                                                   <h5 class="mb-0">{{history.created.day}}</h5>
+                                                   <div class="text-muted">{{history.created|date:'b' }}</div>
+                                               </div>
+                                           </div>
+                                       </div>
+                                       <div class="col">
+                                        <h5 class="text-muted mt-0 mb-1 fs-13" style="color:#DF622C !important">ASIN: {{ detail.ASIN }}</h5>
+                                        <a class="text-reset fs-14 mb-0">
+                                        {{ detail.Title }}</a>
+                                    </div>
+                                    <div class="col-sm-auto">
+                                        <div class="avatar-group" style="color:#DF622C">
+                                            Price:
+                                           {{ detail.Price }} 
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- end row -->
+                            </li><!-- end -->
+                            {% empty %}
+                            <h5 class="mt-4">You didn't search anything yet</h5>
+                            {% endfor %}
+                        </ul><!-- end -->
+                        
+                    </div><!-- end card body -->
+                </div><!-- end card -->
+            </div><!-- end col -->
+
+        </div><!-- end row -->
+
+    </div>
+</div>
+</div>
+
+
+
+<script type="text/javascript">
+    function hideerror(){
+        document.getElementById("asin_error").style.display = "none";
+    }
+    function asin_click(){
+        asin = document.getElementById("asin").value;
+        if(asin=="" || asin.length!=10){
+            document.getElementById("asin_error").style.display = "block";
+            setTimeout(hideerror, 3000)
+        }else{
+            window.location.href = "/overview/"+asin;
+        }
+    }
+</script>
+
+{% endblock %}

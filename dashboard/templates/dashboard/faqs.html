@@ -1,0 +1,168 @@
+{% extends 'dashboard/main.html' %}
+{% load static %}
+{% block body %}
+
+<!-- ========== App Menu ========== -->
+
+<!-- Left Sidebar End -->
+<!-- Vertical Overlay-->
+<div class="vertical-overlay"></div>
+
+<!-- ============================================================== -->
+<!-- Start right Content here -->
+<!-- ============================================================== -->
+<div class="main-content">
+
+    <div class="page-content">
+        <div class="container-fluid">
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card rounded-0 bg-soft-success mx-n4 mt-n4 border-top">
+                        <div class="px-4">
+                            <div class="row">
+                                <div class="col-xxl-5 align-self-center">
+                                    <div class="py-4">
+                                        <h4 class="display-6 coming-soon-text">Frequently asked questions</h4>
+                                        <p class="text-success fs-15 mt-3">If you can not find answer to your question in our FAQ, you can always contact us or email us. We will answer you shortly!</p>
+                                        <div class="hstack flex-wrap gap-2">
+                                            
+                                            <a href="#"><button type="button" class="btn btn-primary btn-label rounded-pill"><i class="ri-facebook-line label-icon align-middle rounded-pill fs-16 me-2"></i> Facebook Messanger</button></a>
+                                            <a href="mailto:contact@flickhawk.org"><button type="button" class="btn btn-info btn-label rounded-pill"><i class="ri-mail-line label-icon align-middle rounded-pill fs-16 me-2"></i> Email Us</button></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xxl-3 ms-auto">
+                                    <div class="mb-n5 pb-1 faq-img d-none d-xxl-block">
+                                        <img src="assets/images/faq-img.png" alt="" class="img-fluid">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end card body -->
+                    </div>
+                    <!-- end card -->
+
+                    <div class="row justify-content-evenly">
+                        <div class="col-lg-4">
+                            <div class="mt-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="flex-shrink-0 me-1">
+                                        <i class="ri-question-line fs-24 align-middle text-success me-1"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h5 class="fs-16 mb-0 fw-semibold">General Questions</h5>
+                                    </div>
+                                </div>
+
+                                <div class="accordion accordion-border-box" id="genques-accordion">
+
+
+                                    {% for faq in general_faqs %}
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="generalheading-{{faq.id}}">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#generalcollapse-{{faq.id}}" aria-expanded="true" aria-controls="generalcollapse-{{faq.id}}">
+                                              {{faq.question}}
+                                            </button>
+                                        </h2>
+                                        <div id="generalcollapse-{{faq.id}}" class="accordion-collapse collapse" aria-labelledby="generalheading-{{faq.id}}" data-bs-parent="#genques-accordion">
+                                            <div class="accordion-body">
+                                                {{faq.answer}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div><!--end accordion-->
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="mt-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="flex-shrink-0 me-1">
+                                        <i class="ri-user-settings-line fs-24 align-middle text-success me-1"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h5 class="fs-16 mb-0 fw-semibold">Manage Account</h5>
+                                    </div>
+                                </div>
+
+                                <div class="accordion accordion-border-box" id="manageaccount-accordion">
+
+                                   {% for faq in account_faqs %}
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="accountheading-{{faq.id}}">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#accountcollapse-{{faq.id}}" aria-expanded="true" aria-controls="accountcollapse-{{faq.id}}">
+                                              {{faq.question}}
+                                            </button>
+                                        </h2>
+                                        <div id="accountcollapse-{{faq.id}}" class="accordion-collapse collapse" aria-labelledby="accountheading-{{faq.id}}" data-bs-parent="#genques-accordion">
+                                            <div class="accordion-body">
+                                                {{faq.answer}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+
+                                </div><!--end accordion-->
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="mt-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="flex-shrink-0 me-1">
+                                        <i class="ri-shield-keyhole-line fs-24 align-middle text-success me-1"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h5 class="fs-16 mb-0 fw-semibold">Privacy &amp; Security</h5>
+                                    </div>
+                                </div>
+
+                                <div class="accordion accordion-border-box" id="privacy-accordion">
+
+                                  {% for faq in privacy_faqs %}
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="privacyheading-{{faq.id}}">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#privacycollapse-{{faq.id}}" aria-expanded="true" aria-controls="privacycollapse-{{faq.id}}">
+                                              {{faq.question}}
+                                            </button>
+                                        </h2>
+                                        <div id="privacycollapse-{{faq.id}}" class="accordion-collapse collapse" aria-labelledby="privacyheading-{{faq.id}}" data-bs-parent="#genques-accordion">
+                                            <div class="accordion-body">
+                                                {{faq.answer}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+
+                                </div><!--end accordion-->
+                            </div>
+                        </div>
+                    </div>
+                </div><!--end col-->.
+            </div><!--end row-->
+
+        </div>
+        <!-- container-fluid -->
+    </div>
+    <!-- End Page-content -->
+
+    <footer class="footer">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <script>document.write(new Date().getFullYear())</script> © Velzon.
+                </div>
+                <div class="col-sm-6">
+                    <div class="text-sm-end d-none d-sm-block">
+                        Design & Develop by Themesbrand
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>
+
+
+{% endblock %}
