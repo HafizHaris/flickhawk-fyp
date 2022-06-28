@@ -100,3 +100,27 @@ class Criteria(models.Model):
 	
 	def _str_(self):
 		return self.criteria_name
+
+
+
+class Payments(models.Model):
+	id = models.UUIDField(default=uuid.uuid4, unique=True, primary_key = True, editable=False)
+	user = models.ForeignKey('auth.User',on_delete=models.CASCADE)
+	payment_id = models.CharField(max_length=500, null=True, blank=True)
+	amount = models.IntegerField(default=0, null=True, blank=True)
+	status = models.BooleanField(default=False, null=True,blank=True)
+	created = models.DateTimeField(auto_now_add=True)	
+	
+	def _str_(self):
+		return self.payment_id
+
+
+class Recommendation(models.Model):
+	id = models.UUIDField(default=uuid.uuid4, unique=True, primary_key = True, editable=False)
+	user = models.ForeignKey('auth.User',on_delete=models.CASCADE)
+	payment_id = models.CharField(max_length=500, null=True, blank=True)
+	asin = models.CharField(max_length=500, null=True, blank=True)
+	created = models.DateTimeField(auto_now_add=True)	
+	
+	def _str_(self):
+		return self.id

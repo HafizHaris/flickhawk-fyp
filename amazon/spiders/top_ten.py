@@ -9,7 +9,7 @@ class TopTenSpider(scrapy.Spider):
     name = 'top_ten'
     asin= ''
     count = 1
-    products_to_scrape = 2
+    products_to_scrape = 10
     keyword = 'macbook'
     start_urls = ['https://www.amazon.com/s?k='+keyword]    
     allowed_domains = ['amazon.com']
@@ -17,7 +17,7 @@ class TopTenSpider(scrapy.Spider):
         self.start_urls = [keyword]    
         TopTenSpider.count=1
     def parse(self, response):        
-        
+    
         product_cards = response.css('.s-asin')       
         no_of_products = response.css('.s-breadcrumb.sg-col-10-of-16 span:nth-child(1)').css('::text').extract_first()
 

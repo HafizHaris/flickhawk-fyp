@@ -61,6 +61,8 @@
                                              </th>
                                              <td>{% if history.history_type == "asin_search" %}
                                                 ASIN Search
+                                            {% else %}
+                                            Recommendation
                                              {% endif %}</td>
                                              <td>
                                             {% for key, value in detail.items %}

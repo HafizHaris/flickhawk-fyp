@@ -9,9 +9,11 @@ from django.contrib import messages
 from multiprocessing import context
 from notifications.signals import notify
 import scrapydo
-from django.shortcuts import render,HttpResponse
+from django.shortcuts import render,HttpResponse, redirect
 from amazon.spiders.asin import AsinSpider
+from amazon.spiders.product_stats import ProductStats
 from amazon.spiders.top_ten import TopTenSpider
+from amazon.spiders.vendor import Vendor
 from amazon.spiders.query import AmazonQuery
 from amazon.pipelines import AmazonPipeline
 from twisted.internet import reactor
@@ -28,8 +30,11 @@ from pydispatch import dispatcher
 from pytrends.request import TrendReq
 from matplotlib import pyplot as plt
 import statistics
+import pickle
+import numpy as np
+import pandas as pd
 # from statsmodels.tsa.seasonal import seasonal_decompose
-from .models import Faqs, History, Product, Criteria, Country, Category
+from .models import Faqs, History, Product, Criteria, Country, Category, Payments, Recommendation
 from django.db.models import Q
 from django.utils.timezone import now
 import datetime
@@ -55,8 +60,9 @@ products = []
 @login_required(login_url="login")
 def dashboard(request):
     search_products = History.objects.filter(user=request.user, history_type="asin_search").count()
-    paid_searches=16
-    total_spendings = paid_searches * 2
+    paid_searches = History.objects.filter(user=request.user, history_type="recommendation").count()
+    
+    total_spendings = int(paid_searches) * 1
     predefined_criterias = Criteria.objects.all().count()
     history = History.objects.filter(user=request.user).order_by('-created')[:15]
     recent_products = Product.objects.filter().order_by('-created')[:15]
@@ -78,15 +84,155 @@ def products(request,slug):
         product_detail = InMemoryItemStore.pop_items()   
         myl.append(product_detail)
      
+
+    # context={"items":items}
+    # return render(request,'dashboard/product_overview.html',context)
     return HttpResponse(myl)
 
 @login_required(login_url="login")
 def overview(request):   
     return HttpResponse("hi")
 
+
+
+def get_predictions(asin):
+
+    crawler_settings = Settings()
+    scrapydo.setup()
+    scrapydo.run_spider(ProductStats, asin_number=asin)
+    items = InMemoryItemStore.pop_items()
+    items = items[0]
+    print(items)
+    # print(type(items))
+
+    model = pickle.load(open("amazon.sav", "rb"))
+    array = np.array([[items.get('price'), items.get('reviews'), items.get('rating'),items.get('weight'),items.get('listing_time'),items.get('revenue'),items.get('brand_domination'),items.get('amz_as_seller')]])
+    column_values = ['price', 'reviews', 'rating', 'weight', 'listing_time', 'revenue',
+       'brand_domination', 'amz_as_seller']
+    df = pd.DataFrame(data = array,  
+                  columns = column_values)
+    value=model.predict(df)
+    health = round(value[0])
+    
+    return int(health)
+
+
+
+@login_required(login_url="login")
+def producthealth(request,pid,asin):
+
+    pstatus = True
+
+    check_database = Recommendation.objects.filter(Q(asin=asin) & Q(user=request.user)).order_by('-created')
+    if check_database:
+        pstatus = False        
+    else:
+        check_payment = Payments.objects.filter(Q(user=request.user) & Q(status=True) & Q(payment_id=pid)).order_by('-created')[:1]
+        if len(check_payment) == 0:
+            return redirect('paypal')
+
+    crawler_settings = Settings()
+    scrapydo.setup()
+    check_database = Product.objects.filter(Q(asin=asin)).order_by('-created')
+    if check_database:
+        items = check_database.first()            
+        title = items.title
+    else:
+        scrapydo.run_spider(AsinSpider, asin_number=asin)
+        items = InMemoryItemStore.pop_items()
+        items = items[0]
+        title = items['title']
+
+
+    # vendor code
+
+    title=str(title).split()[:3]
+    keyword = str(title[0])+" "+str(title[1])+" "+str(title[2])
+    print("keyword..............")
+    print(keyword)
+    link = 'https://www.made-in-china.com/productdirectory.do?word='+keyword+'&file=&searchType=0&subaction=hunt&style=b&mode=and&code=0&comProvince=nolimit&order=0&isOpenCorrection=1&org=top'
+    scrapydo.run_spider(Vendor,keyword=link)    
+    vendor = InMemoryItemStore.pop_items()
+    vendor = vendor[0]
+    print(vendor)
+    # return HttpResponse(vendor["attr"]["link"])
+    #end vendor code
+    
+    #product detail
+    try:
+        crawler_settings = Settings()
+        scrapydo.setup()
+        scrapydo.run_spider(AsinSpider, asin_number=asin)
+        items = InMemoryItemStore.pop_items()
+        items = items[0]
+
+        # trends for seasonality
+        try:
+            kw=str(items['title']).split()[:3]
+            str1 = "" 
+            for ele in kw: 
+               str1 += " "+ele  
+            kw = re.sub(r'[^a-zA-Z0-9 ]',r'',str1)
+            pytrends = TrendReq(hl='en-US', tz=360) 
+            kw_list = [kw]
+            pytrends.build_payload(kw_list, cat=0, timeframe='today 5-y', geo='US') 
+            trends = pytrends.interest_over_time()
+            plt.plot(trends)
+            fig=plt.gcf()
+            plt.close(fig)
+            buf=io.BytesIO()
+            fig.savefig(buf,format='png')
+            buf.seek(0)
+            string=base64.b64encode(buf.read())
+            uri=urllib.parse.quote(string)
+        except Exception as e:
+                uri=None
+        # end trends
+
+        
+        detail = {"ASIN":asin,"Title":items["title"],"Price":items["price"]}
+
+        # history
+        detail = json.dumps(detail)
+        detail = detail.replace("\'", "\"")
+        record = History(user=request.user, history_type='recommendation', detail=detail,url='/producthealth/'+pid+'/'+asin)
+        record.save()
+
+
+
+        # store in database
+        check_database = Recommendation.objects.filter(Q(asin=asin) & Q(user=request.user)).order_by('-created')
+        if not check_database:
+            record = Recommendation(user=request.user,payment_id=pid, asin=asin)
+            record.save()
+            if pstatus:
+                payment = Payments.objects.get(payment_id=pid)
+                payment.status=False
+                payment.save()
+        
+
+
+        # calculate health
+        health = get_predictions(asin)
+
+        context={"items":items,'data':uri,'status':"success","vendor":vendor,"health":health}    
+
+    except Exception as e:
+        print(e)
+        context={'status':"error"}
+
+    
+    return render(request,'dashboard/producthealth.html',context)
+
+
+
 @login_required(login_url="login")
 def paypal(request):   
-    return render(request,'dashboard/paypal.html')
+    payment = Payments.objects.filter(Q(user=request.user) & Q(status=True)).order_by('-created')[:1]
+    if len(payment) == 1:
+        return redirect('paidsearch')
+    else:
+        return render(request,'dashboard/paypal.html')
 
 @login_required(login_url="login")
 def profile(request):
@@ -111,6 +257,29 @@ def recent_activities(request):
     history = History.objects.filter(user=request.user).order_by('-created')
     context = {'history':history}
     return render(request,'dashboard/recent_activities.html',context)
+
+
+@login_required(login_url="login")
+def paidsearch(request):
+    payment = Payments.objects.filter(Q(user=request.user) & Q(status=True)).order_by('-created')[:1]
+    if len(payment) == 1:
+        context = {'payment':payment.first()}
+        return render(request,'dashboard/paidsearch.html',context)
+    else:
+        return redirect('paypal')
+@login_required(login_url="login")
+def savepayment(request):
+    id = request.GET.get('id')
+    if id is not None:
+        check_database = Payments.objects.filter(Q(payment_id=id))
+        if len(check_database) == 0:
+            amount = "1"
+            record = Payments(user=request.user,payment_id=id, amount=amount, status=True)
+            record.save()
+            notify.send(request.user, recipient=request.user, verb='Payment has been made successfully. $'+amount+' has been deducted from your paypal.')
+            return redirect('paidsearch')
+        else:
+            return redirect('paypal')
 
 @login_required(login_url="login")
 def support_tickets(request):
@@ -319,9 +488,14 @@ def numOfDays(date1, date2):
     return (date2-date1).days
      
 
+def convert_to_float(val):
+    try:
+        val=float(val)
+        return val
+    except:
+        return 0.0
+
 def query_products(request):       
-    
-             
     try:
         keyword=''
         link = ''
@@ -329,7 +503,8 @@ def query_products(request):
             keyword=request.GET.get('keyword')
         if request.GET.get('criteria'):
             criteria=request.GET.get('criteria')
-            criteria=Criteria.objects.get(criteria_name=criteria)        
+            criteria=Criteria.objects.get(criteria_name=criteria)  
+
             min_avg_price=criteria.min_avg_price
             max_avg_price=criteria.max_avg_price
             min_avg_revenue=criteria.min_avg_revenue
@@ -375,8 +550,6 @@ def query_products(request):
             if request_country is not None:
                 country=Country.objects.get(name=request_country)  
                 link = country.url+"s?k="+keyword
-                 
-
 
         brand_domination=False
         amz_as_seller=False    
@@ -384,8 +557,6 @@ def query_products(request):
         seller_revenue=False 
         crawler_settings = Settings()
         scrapydo.setup()    
-        
-
 
         scrapydo.run_spider(TopTenSpider,keyword=""+link)    
         items = InMemoryItemStore.pop_items()    
@@ -417,7 +588,10 @@ def query_products(request):
             no_of_products=0
 
         for item in myl:
-            attr=item[0]['attr']  
+            try:
+                attr=item[0]['attr']  
+            except:
+                attr=[] 
             
             listing_date=item[0]['listing_date']
             if listing_date is not None:
@@ -500,8 +674,8 @@ def query_products(request):
                 revenue_count=revenue_count+1
         if revenue_count>3:
             seller_revenue=True
-        print(review_count)
-        print(revenue_count)
+        # print(review_count)
+        # print(revenue_count)
         
         predefined_criterias=Criteria.objects.all()
         countries=Country.objects.all()
@@ -511,16 +685,17 @@ def query_products(request):
         'avg_revenue':avg_revenue,'brands_list':brands_list,'brand_domination':brand_domination,
         'amz_as_seller':amz_as_seller,'seller_revenue':seller_revenue,
         'seller_reviews':seller_reviews,'avg_ratings':avg_ratings,'avg_price':avg_price,
-        'no_of_products':int(no_of_products),'min_avg_price':float(min_avg_price),'max_avg_price':float(max_avg_price),
-        'min_avg_reviews':float(min_avg_reviews),'max_avg_reviews':float(max_avg_reviews),'min_avg_revenue':float(min_avg_revenue),
-        'max_avg_revenue':float(max_avg_revenue),'min_avg_ratings':float(min_avg_rating),'max_avg_ratings':float(max_avg_rating),
-        'request_avg_weight':float(request_avg_weight),'request_amz_as_seller':request_amz_as_seller,
-        'request_no_of_products':request_no_of_products,'request_brand_domination':request_brand_domination,    
+        'no_of_products':int(no_of_products),'min_avg_price':convert_to_float(min_avg_price),'max_avg_price':convert_to_float(max_avg_price),
+        'min_avg_reviews':convert_to_float(min_avg_reviews),'max_avg_reviews':convert_to_float(max_avg_reviews),'min_avg_revenue':convert_to_float(min_avg_revenue),
+        'max_avg_revenue':convert_to_float(max_avg_revenue),'min_avg_ratings':convert_to_float(min_avg_rating),'max_avg_ratings':convert_to_float(max_avg_rating),
+        'request_avg_weight':convert_to_float(request_avg_weight),'request_amz_as_seller':request_amz_as_seller,
+        'request_no_of_products':convert_to_float(request_no_of_products),'request_brand_domination':request_brand_domination,    
         'keyword':keyword,'predefined_criterias':predefined_criterias,'request_country':request_country,'countries':countries,'avg_listing_days':listing_days,'status':"success"
-        }    
-    # return HttpResponse(myl)
+        }
     except:
-        context={'status':"error"}
+        context={"status":"error"}    
+    # return HttpResponse(myl)
+    
 
     return render(request,'dashboard/query_products.html',context)
 
@@ -537,8 +712,6 @@ def notifications_count(request):
         return count
     else:
         return 0
-
-        
 def notifications(request):
     read=request.user.notifications.mark_all_as_read()
     notifications=request.user.notifications.read()

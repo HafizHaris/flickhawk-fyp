@@ -26,7 +26,7 @@ class StoreInMemoryPipeline(object):
     def process_item(self, item, spider):
         # conf_settings.PRODUCTS.append(item)         
         InMemoryItemStore.add_item(item)        
-        # print("HERE IS THE LIST........................")
+        
         
     def close_spider(self, spider):
         print('im closing from pipeline...........................')

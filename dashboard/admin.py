@@ -1,6 +1,6 @@
 from sre_constants import CATEGORY
 from django.contrib import admin
-from .models import Category, Country, Faqs, History, Product, Criteria
+from .models import Category, Country, Faqs, History, Product, Criteria, Payments, Recommendation
 # Register your models here.
 
 admin.site.site_header = "Flick Hawk Admin"
@@ -33,3 +33,13 @@ admin.site.register(Product,ProductAdmin)
 class CriteriaAdmin(admin.ModelAdmin):
         list_display=['criteria_name']
 admin.site.register(Criteria,CriteriaAdmin)
+
+
+class PaymentsAdmin(admin.ModelAdmin):
+        list_display=['payment_id','user','amount','created']
+admin.site.register(Payments,PaymentsAdmin)
+
+
+class RecommendationAdmin(admin.ModelAdmin):
+        list_display=['user','asin','payment_id','created']
+admin.site.register(Recommendation,RecommendationAdmin)

@@ -161,7 +161,8 @@
                                             <div class="col-sm-2">                                        
                                                 <div>
                                                     <label for="">Weight less than</label>
-                                                    <input type="number" min="0" oninput="validity.valid||(value='');"  value="{{ request_avg_weight }}" class="form-control" name="avg_weight" id="avg_weight" placeholder="In pounds">                                                
+                                                    <input type="text" onkeyup="value=value.replace(/[^0-9^\.]+/g,'').replace('.','$#$').replace(/\./g,'').replace('$#$','.').replace(/^0+/, '')" value="{{ request_avg_weight }}" class="form-control" name="avg_weight" id="avg_weight" placeholder="In pounds">
+
                                                 </div>                                        
                                             </div>
                                             <div class="col-sm-2">                                        
@@ -809,6 +810,8 @@
         }
 
        if(status){
+        document.querySelectorAll('.result-section').forEach(p => p.style.display = "none");
+        document.getElementById("data-preloader").style.display = "block";
         return true;
        }else{
         return false;

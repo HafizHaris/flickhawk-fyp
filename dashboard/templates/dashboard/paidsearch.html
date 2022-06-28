@@ -1,0 +1,132 @@
+{% extends 'dashboard/main.html' %}
+{% load static %}
+{% block body %}
+
+<!-- ========== App Menu ========== -->
+
+<!-- Left Sidebar End -->
+<!-- Vertical Overlay-->
+<div class="vertical-overlay"></div>
+
+<!-- ============================================================== -->
+<!-- Start right Content here -->
+<!-- ============================================================== -->
+
+<div class="main-content">
+
+    <div class="page-content">
+        <div class="container-fluid">
+
+            <!-- start page title -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                        <h4 class="mb-sm-0">Check Product Health</h4>
+
+                        <div class="page-title-right">
+                            <ol class="breadcrumb m-0">
+                                <li class="breadcrumb-item"><a href="javascript: void(0);">Tools</a></li>
+                                <li class="breadcrumb-item active">Check Product Product</li>
+                            </ol>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- end page title -->
+
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-header align-items-center d-flex">
+                            <h4 class="card-title mb-0 flex-grow-1">Check Health</h4>
+                        </div><!-- end card header -->
+                        <div class="card-body">
+
+
+                        <div class="row" id="data-preloader" style="display:none">
+                            <div class="col-xl-12">
+                                <div class="crm-widget">
+                                    <div class=" p-0">
+                                    <div style="height: 150px; display: flex; justify-content:center; align-items: center;">
+                                       <img src="/static/dashboard-assets/images/preloader/48x48.gif" style="margin:0 auto">
+                                   </div>
+                                    </div><!-- end card body -->
+                                </div><!-- end card -->
+                            </div><!-- end col -->
+                        </div>
+
+                            <div class="live-preview" id="form-card">
+                                <div class="row gy-4">                 
+                                    <div class="col-xxl-6 col-md-6">
+                                        <div>
+                                            <input type="hidden" id="pid" value="{{payment.payment_id}}">
+                                            <label for="basiInput" class="form-label">Enter ASIN</label>
+                                            <input type="text" style="max-width: 300px;" class="form-control mb-1" id="asin" placeholder="e.g B09JFS5CJK">
+                                            <span style="color:red; display: none;" id="asin_error">Please enter valid ASIN</span>
+                                            <button class="btn btn-danger mt-1 mb-3 bg-gradient" style="background: #DF622C;" onclick="asin_click()">search</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-xxl-3 col-md-6">
+                                        <h5>Payment information</h5>
+                                        <p class="mb-0">Time : {{payment.created}}</p>
+                                        <p class="mb-0">Payment ID: {{payment.payment_id}}</p>
+                                        <p class="mb-0">Amount: ${{payment.amount}}</p>
+                                        <p class="mb-0">Status: Valid</p>
+                                        <p class="mb-0">Paid through Paypal</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="live-preview">
+                                <div class="row gy-4">                 
+                                    <div class="col-xxl-12 col-md-12">
+                                        <h5>Information:</h5>
+                                        <p style="text-align: justify;">Flick Hawk health checker tool can help you to check the potential of the product that you're thinking to launch. It gives complete detail about product, health score of your product and it recommends best vendor from where you can order your inventory in a low price.</p>
+
+                                        <p style="text-align: justify;">How it works? This tool is based on Artificial Intelligence that keeps the data of your product and apply some processes on it to check its health. Vendor recommendation is from MadeInChina.com and Flick Hawk make sure to get best vendor that provide products in a low price to make sure profit margin.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+    </div>
+</div>
+</div>
+
+
+
+<script type="text/javascript">
+    function hideerror(){
+        document.getElementById("asin_error").style.display = "none";
+    }
+    function asin_click(){
+        asin = document.getElementById("asin").value;
+        pid = document.getElementById("pid").value;
+        if(asin=="" || asin.length!=10){
+            document.getElementById("asin_error").style.display = "block";
+            setTimeout(hideerror, 3000)
+        }else{
+            document.getElementById("form-card").style.display = "none";
+            document.getElementById("data-preloader").style.display = "block";
+            window.location.href = "/producthealth/"+pid+"/"+asin;
+        }
+    }
+</script>
+
+{% endblock %}
